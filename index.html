@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kivo - Organização de Arquivos</title>
+    <style>
+        /* ===================== CSS ===================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --roxo: #8B5CF6;
+            --roxo-escuro: #7C3AED;
+            --roxo-claro: #A78BFA;
+            --offwhite: #F5F5F5;
+            --branco: #FFFFFF;
+            --cinza: #E5E5E5;
+            --cinza-escuro: #525252;
+            --preto: #1A1A1A;
+        }
+
+        body {
+            background-color: var(--offwhite);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===================== BARRA LATERAL ===================== */
+        .sidebar {
+            width: 250px;
+            background: var(--branco);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--roxo);
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 10px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            padding: 15px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--cinza-escuro);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: var(--roxo-claro);
+            color: var(--branco);
+        }
+
+        .menu-btn.active {
+            background: var(--roxo);
+            color: var(--branco);
+        }
+
+        /* ===================== CONTEÚDO PRINCIPAL ===================== */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 250px);
+        }
+
+        /* ===================== CABEÇALHO ===================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--preto);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            background: var(--branco);
+            color: var(--roxo);
+            border: 2px solid var(--roxo);
+        }
+
+        .btn-cadastrar {
+            background: var(--roxo);
+            color: var(--branco);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===================== TABS ===================== */
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        /* ===================== INÍCIO ===================== */
+        .inicio-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .upload-area {
+            width: 100%;
+            max-width: 600px;
+            background: var(--branco);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px dashed var(--roxo-claro);
+        }
+
+        .upload-area:hover {
+            border-color: var(--roxo);
+            background: #FAFAFE;
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--cinza);
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--roxo);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: var(--roxo);
+            color: var(--branco);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .info-cards {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .card {
+            flex: 1;
+            background: var(--branco);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--roxo);
+            margin-bottom: 10px;
+        }
+
+        /* ===================== ARQUIVOS ===================== */
+        .arquivos-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .upload-section, .download-section {
+            flex: 1;
+            background: var(--branco);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: var(--roxo);
+            margin-bottom: 20px;
+        }
+
+        .file-drop {
+            border: 3px dashed var(--roxo-claro);
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-drop:hover {
+            border-color: var(--roxo);
+            background: #FAFAFE;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--offwhite);
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        /* ===================== CONFIGURAÇÕES ===================== */
+        .config-container {
+            max-width: 600px;
+        }
+
+        .config-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--branco);
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .config-btn:hover {
+            transform: translateX(10px);
+            border-left: 4px solid var(--roxo);
+        }
+
+        /* ===================== SOBRE NÓS ===================== */
+        .sobre-container {
+            max-width: 800px;
+        }
+
+        .sobre-text {
+            background: var(--branco);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        /* ===================== MODAL ===================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--branco);
+            padding: 40px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid var(--cinza);
+            border-radius: 8px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--roxo);
+            color: var(--branco);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* ===================== RESPONSIVO ===================== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+                padding: 10px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .menu-btn {
+                text-align: center;
+                padding: 15px 5px;
+            }
+            
+            .menu-btn span {
+                display: none;
+            }
+            
+            .menu-btn::before {
+                content: attr(data-icon);
+                font-size: 20px;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .arquivos-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===================== BARRA LATERAL ===================== -->
+    <nav class="sidebar">
+        <div class="logo">KIVO</div>
+        <button class="menu-btn active" onclick="mostrarTab('inicio', this)" data-icon="🏠">
+            <span>Início</span>
+        </button>
+        <button class="menu-btn" onclick="mostrarTab('arquivos', this)" data-icon="📁">
+            <span>Arquivos</span>
+        </button>
+        <button class="menu-btn" onclick="mostrarTab('configuracoes', this)" data-icon="⚙️">
+            <span>Configurações</span>
+        </button>
+        <button class="menu-btn" onclick="mostrarTab('sobre', this)" data-icon="ℹ️">
+            <span>Sobre Nós</span>
+        </button>
+    </nav>
+
+    <!-- ===================== CONTEÚDO PRINCIPAL ===================== -->
+    <main class="main-content">
+        
+        <!-- ===================== INÍCIO ===================== -->
+        <div id="inicio" class="tab active">
+            <div class="header">
+                <div class="header-title">Bem-vindo ao Kivo</div>
+                <div class="header-buttons">
+                    <button class="btn btn-login" onclick="abrirModal('login')">Login</button>
+                    <button class="btn btn-cadastrar" onclick="abrirModal('cadastro')">Cadastrar-se</button>
+                </div>
+            </div>
+
+            <div class="inicio-container">
+                <!-- Foto/Ch-placeholder -->
+                <div class="upload-area" style="background: linear-gradient(135deg, var(--roxo-claro), var(--roxo)); padding: 60px;">
+                    <div style="color: white; font-size: 80px;">📷</div>
+                    <p style="color: white; margin-top: 15px;">Clique para adicionar uma foto</p>
+                </div>
+
+                <!-- Texto breve -->
+                <p style="text-align: center; max-width: 600px; color: var(--cinza-escuro);">
+                    Organize seus arquivos de forma simples e eficiente com o Kivo. 
+                    Faça upload, categorize e encontre seus documentos rapidamente.
+                </p>
+
+                <!-- Barra de pesquisa -->
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="pesquisa" placeholder="Pesquisar arquivos...">
+                    <button class="search-btn" onclick="pesquisarArquivos()">Buscar</button>
+                </div>
+
+                <!-- Cards de info -->
+                <div class="info-cards">
+                    <div class="card">
+                        <h3 id="total-arquivos">0</h3>
+                        <p>Arquivos</p>
+                    </div>
+                    <div class="card">
+                        <h3 id="total-pastas">0</h3>
+                        <p>Pastas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== ARQUIVOS ===================== -->
+        <div id="arquivos" class="tab">
+            <div class="header">
+                <div class="header-title">Meus Arquivos</div>
+            </div>
+
+            <div class="arquivos-container">
+                <!-- Upload -->
+                <div class="upload-section">
+                    <h3 class="section-title">📤 Fazer Upload</h3>
+                    <div class="file-drop" onclick="document.getElementById('file-input').click()">
+                        <div style="font-size: 50px;">⬆️</div>
+                        <p>Clique ou arraste arquivos aqui</p>
+                        <input type="file" id="file-input" style="display: none;" onchange="fazerUpload(this)">
+                    </div>
+                    <div id="upload-status" style="margin-top: 15px;"></div>
+                </div>
+
+                <!-- Downloads -->
+                <div class="download-section">
+                    <h3 class="section-title">📥 Arquivos Baixados</h3>
+                    <div class="file-list" id="lista-arquivos">
+                        <p style="color: var(--cinza-escuro);">Nenhum arquivo ainda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== CONFIGURAÇÕES ===================== -->
+        <div id="configuracoes" class="tab">
+            <div class="header">
+                <div class="header-title">Configurações</div>
+            </div>
+
+            <div class="config-container">
+                <button class="config-btn">🔔 Notificações</button>
+                <button class="config-btn">🎨 Tema</button>
+                <button class="config-btn">🔒 Privacidade</button>
+                <button class="config-btn">💾 Backup</button>
+                <button class="config-btn">🗑️ Limpar Dados</button>
+            </div>
+        </div>
+
+        <!-- ===================== SOBRE NÓS ===================== -->
+        <div id="sobre" class="tab">
+            <div class="header">
+                <div class="header-title">Sobre Nós</div>
+            </div>
+
+            <div class="sobre-container">
+                <div class="sobre-text" contenteditable="true">
+                    <h2>Quem Somos</h2>
+                    <p>O Kivo é uma ferramenta de organização de arquivos desenvolvida para facilitar sua vida digital. 
+                    Nossa missão é ajudar você a encontrar seus documentos de forma rápida e organizada.</p>
+                    <br>
+                    <h3>Nosso Objetivo</h3>
+                    <p>Simplificar a organização de arquivos para pessoas e empresas, oferecendo uma experiência 
+                    intuitiva e eficiente.</p>
+                    <br>
+                    <h3>Contato</h3>
+                    <p>Email: contato@kivo.com</p>
+                    <p>Telefone: (11) 99999-9999</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===================== MODAL ===================== -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modal-titulo" style="color: var(--roxo); margin-bottom: 20px;">Login</h2>
+            <input type="text" class="modal-input" id="input-email" placeholder="Email">
+            <input type="password" class="modal-input" id="input-senha" placeholder="Senha">
+            <input type="text" class="modal-input" id="input-nome" placeholder="Nome" style="display: none;">
+            <input type="text" class="modal-input" id="input-telefone" placeholder="Telefone" style="display: none;">
+            <button class="modal-btn" onclick="enviarFormulario()">Entrar</button>
+            <button style="background: none; border: none; color: var(--cinza-escuro); margin-top: 15px; cursor: pointer;" onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        /* ===================== JAVASCRIPT ===================== */
+        
+        // Variáveis globais
+        let usuarioLogado = null;
+        const API_URL = "http://localhost:5000/api";
+
+        // Trocar abas
+        function mostrarTab(tabId, btn) {
+            // Esconde todas as tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            // Remove active dos botões
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            // Mostra a tab selecionada
+            document.getElementById(tabId).classList.add('active');
+            // Adiciona active ao botão
+            btn.classList.add('active');
+            
+            if (tabId === 'arquivos') {
+                listarArquivos();
+            }
+        }
+
+        // Abrir modal
+        function abrirModal(tipo) {
+            const modal = document.getElementById('modal');
+            const titulo = document.getElementById('modal-titulo');
+            const inputNome = document.getElementById('input-nome');
+            const inputTelefone = document.getElementById('input-telefone');
+            const btn = document.querySelector('.modal-btn');
+            
+            if (tipo === 'login') {
+                titulo.textContent = 'Login';
+                inputNome.style.display = 'none';
+                inputTelefone.style.display = 'none';
+                btn.textContent = 'Entrar';
+                btn.onclick = fazerLogin;
+            } else {
+                titulo.textContent = 'Cadastrar-se';
+                inputNome.style.display = 'block';
+                inputTelefone.style.display = 'block';
+                btn.textContent = 'Cadastrar';
+                btn.onclick = fazerCadastro;
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // Fechar modal
+        function fecharModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Fazer Login
+        async function fazerLogin() {
+            const email = document.getElementById('input-email').value;
+            const senha = document.getElementById('input-senha').value;
+            
+            const dados = {
+                email: email,
+                senha: senha
+            };
+
+            try {
+                const resposta = await fetch(API_URL + "/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    usuarioLogado = resultado.id;
+                    alert("Login realizado com sucesso!");
+                    fecharModal();
+                    // Atualiza botões
+                    document.querySelector('.btn-login').textContent = "Perfil";
+                    document.querySelector('.btn-cadastrar').textContent = "Sair";
+                    document.querySelector('.btn-cadastrar').onclick = fazerLogout;
+                    listarArquivos();
+                } else {
+                    alert(resultado.erro);
+                }
+            } catch (erro) {
+                alert("Erro ao conectar com a API!");
+            }
+        }
+
+        // Fazer Cadastro
+        async function fazerCadastro() {
+            const nome = document.getElementById('input-nome').value;
+            const email = document.getElementById('input-email').value;
+            const telefone = document.getElementById('input-telefone').value;
+            const senha = document.getElementById('input-senha').value;
+            
+            const dados = {
+                nome: nome,
+                email: email,
+                numero_telefone: telefone,
+                senha: senha
+            };
+
+            try {
+                const resposta = await fetch(API_URL + "/cadastro", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    alert("Cadastro realizado! Faça login.");
+                    fecharModal();
+                } else {
+                    alert("Erro ao cadastrar!");
+                }
+            } catch (erro) {
+                alert("Erro ao conectar com a API!");
+            }
+        }
+
+        // Logout
+        function fazerLogout() {
+            usuarioLogado = null;
+            document.querySelector('.btn-login').textContent = "Login";
+            document.querySelector('.btn-cadastrar').textContent = "Cadastrar-se";
+            document.querySelector('.btn-cadastrar').onclick = function() { abrirModal('cadastro'); };
+            alert("Logout realizado!");
+        }
+
+        // Upload de arquivo
+    async function fazerUpload(input) {
+    const arquivo = input.files[0];
+    
+    console.log("Arquivo selecionado:", arquivo);
+    console.log("Usuário logado:", usuarioLogado);
+    
+    if (!arquivo) {
+        alert("Nenhum arquivo seleccionado!");
+        return;
+    }
+    
+    if (!usuarioLogado) {
+        alert("Faça login primeiro!");
+        return;
+    }
+
+    const dados = {
+        id_usuario: usuarioLogado,
+        nome_arquivo: arquivo.name,
+        extensao: arquivo.name.split('.').pop(),
+        tamanho: arquivo.size,
+        caminho_original: "C:/uploads/" + arquivo.name,
+        tipo_arquivo: arquivo.type
+    };
+
+    console.log("Dados enviados:", dados);
+
+    try {
+        const resposta = await fetch(API_URL + "/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        console.log("Status:", resposta.status);
+        const resultado = await resposta.json();
+        console.log("Resposta:", resultado);
+        alert(resultado.mensagem);
+    } catch (erro) {
+        console.log("Erro:", erro);
+    }
+}
+        // Listar arquivos
+        async function listarArquivos() {
+            if (!usuarioLogado) {
+                document.getElementById('lista-arquivos').innerHTML = 
+                    '<p style="color: var(--cinza-escuro);">Faça login para ver seus arquivos.</p>';
+                return;
+            }
+
+            try {
+                const resposta = await fetch(API_URL + "/arquivos/" + usuarioLogado);
+                const arquivos = await resposta.json();
+
+                if (arquivos.length === 0) {
+                    document.getElementById('lista-arquivos').innerHTML = 
+                        '<p style="color: var(--cinza-escuro);">Nenhum arquivo ainda.</p>';
+                } else {
+                    let html = '';
+                    arquivos.forEach(arq => {
+                        html += `
+                            <div class="file-item">
+                                <span>📄 ${arq.nome_arquivo}</span>
+                                <span style="color: var(--roxo);">${arq.extensao}</span>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('lista-arquivos').innerHTML = html;
+                }
+
+                // Atualiza contador
+                document.getElementById('total-arquivos').textContent = arquivos.length;
+            } catch (erro) {
+                console.log("Erro ao listar arquivos");
+            }
+        }
+
+        // Pesquisar arquivos
+        async function pesquisarArquivos() {
+            const termo = document.getElementById('pesquisa').value.toLowerCase();
+            
+            if (!usuarioLogado) {
+                alert("Faça login primeiro!");
+                return;
+            }
+
+            try {
+                const resposta = await fetch(API_URL + "/arquivos/" + usuarioLogado);
+                const arquivos = await resposta.json();
+
+                const arquivosFiltrados = arquivos.filter(arq => 
+                    arq.nome_arquivo.toLowerCase().includes(termo) || 
+                    arq.extensao.toLowerCase().includes(termo)
+                );
+
+                let html = '';
+                if (arquivosFiltrados.length === 0) {
+                    html = '<p style="color: var(--cinza-escuro);">Nenhum arquivo encontrado.</p>';
+                } else {
+                    arquivosFiltrados.forEach(arq => {
+                        html += `
+                            <div class="file-item">
+                                <span>📄 ${arq.nome_arquivo}</span>
+                                <span style="color: var(--roxo);">${arq.extensao}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                document.getElementById('lista-arquivos').innerHTML = html;
+            } catch (erro) {
+                alert("Erro ao pesquisar!");
+            }
+        }
+
+        // Atualizar info cards ao carregar
+        window.onload = function() {
+            // Carrega contadores se logado
+            if (usuarioLogado) {
+                listarArquivos();
+            }
+        };
+        // Teste de conexão ao carregar
+window.onload = async function() {
+    try {
+        const resposta = await fetch(API_URL + "/arquivos/1");
+        console.log("API conectada! Status:", resposta.status);
+    } catch (erro) {
+        console.log("API offline ou erro de conexão");
+    }
+};
+    </script>
